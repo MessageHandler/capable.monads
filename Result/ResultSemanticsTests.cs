@@ -5,6 +5,71 @@ namespace Result
     public class ResultSemanticsTests
     {
         [Fact]
+        public void Bind_SatisfiesLeftIdentity()
+        {
+            Func<int, Result<int, string>> bind = value =>
+                Result<int, string>.Success(value + 1);
+
+            var fromReturn = Result<int, string>.Success(41).Bind(bind);
+            var direct = bind(41);
+
+            AssertEquivalent(fromReturn, direct);
+        }
+
+        [Fact]
+        public void Bind_SatisfiesRightIdentity_ForSuccess()
+        {
+            var result = Result<int, string>.Success(42);
+
+            var bound = result.Bind(Result<int, string>.Success);
+
+            AssertEquivalent(bound, result);
+        }
+
+        [Fact]
+        public void Bind_SatisfiesRightIdentity_ForFailure()
+        {
+            var result = Result<int, string>.Failure("boom");
+
+            var bound = result.Bind(Result<int, string>.Success);
+
+            AssertEquivalent(bound, result);
+        }
+
+        [Fact]
+        public void Bind_SatisfiesAssociativity()
+        {
+            Func<int, Result<int, string>> first = value =>
+                Result<int, string>.Success(value + 1);
+            Func<int, Result<string, string>> second = value =>
+                Result<string, string>.Success($"value:{value}");
+
+            var left = Result<int, string>.Success(41)
+                .Bind(first)
+                .Bind(second);
+
+            var right = Result<int, string>.Success(41)
+                .Bind(value => first(value).Bind(second));
+
+            AssertEquivalent(left, right);
+        }
+
+        [Fact]
+        public void LinqQuerySyntax_IsEquivalentToBindAndMap()
+        {
+            var query =
+                from first in Result<int, string>.Success(20)
+                from second in Result<int, string>.Success(22)
+                select first + second;
+
+            var fluent = Result<int, string>.Success(20)
+                .Bind(first => Result<int, string>.Success(22)
+                    .Map(second => first + second));
+
+            AssertEquivalent(query, fluent);
+        }
+
+        [Fact]
         public void Success_HasExpectedFlags()
         {
             var result = Result<int, string>.Success(42);
@@ -207,6 +272,22 @@ namespace Result
 
             failureHandlerAct.Should().Throw<ArgumentNullException>();
             successHandlerAct.Should().Throw<ArgumentNullException>();
+        }
+
+        private static void AssertEquivalent<TSuccess, TFailure>(
+            Result<TSuccess, TFailure> actual,
+            Result<TSuccess, TFailure> expected)
+        {
+            actual.IsSuccess.Should().Be(expected.IsSuccess);
+            actual.IsFailure.Should().Be(expected.IsFailure);
+
+            actual.Fold(
+                failure => (object?)failure,
+                success => success)
+                .Should()
+                .Be(expected.Fold(
+                    failure => (object?)failure,
+                    success => success));
         }
     }
 }
