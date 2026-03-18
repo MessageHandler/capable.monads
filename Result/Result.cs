@@ -24,8 +24,6 @@ namespace Result
         public static Result<TSuccess, TFailure> Failure(TFailure value) =>
             new Result<TSuccess, TFailure>(false, default!, value);
 
-        public static Result<TSuccess, TFailure> From(TSuccess value) => Success(value);
-
         public Result<TNextSuccess, TFailure> Map<TNextSuccess>(Func<TSuccess, TNextSuccess> map)
         {
             ArgumentNullException.ThrowIfNull(map);
