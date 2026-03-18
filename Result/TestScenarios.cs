@@ -4,13 +4,13 @@ namespace Result
 {
     public class TestScenarios
     {
-        public Task<Result<Problem, Success>> HandleCommand(
+        public Task<Result<Success, Problem>> HandleCommand(
             Command command,
-            Func<Command, Result<Problem, ValidatedCommand>> validate,
-            Func<User, Result<Problem, Authorized>> authorize,
-            Func<ValidatedCommand, Task<Result<Problem, Event[]>>> load,
+            Func<Command, Result<ValidatedCommand, Problem>> validate,
+            Func<User, Result<Authorized, Problem>> authorize,
+            Func<ValidatedCommand, Task<Result<Event[], Problem>>> load,
             Func<Event[], ValidatedCommand, Authorized, AggregateRoot> action,
-            Func<AggregateRoot, Task<Result<Problem, Event[]>>> persist)
+            Func<AggregateRoot, Task<Result<Event[], Problem>>> persist)
         {
             return
                 from validatedCommand in validate(command)
@@ -116,6 +116,6 @@ namespace Result
     public record AggregateRoot { }
     public record Success
     {
-        public Event[] Emitted { get; internal set; }
+        public required Event[] Emitted { get; init; }
     }
 }

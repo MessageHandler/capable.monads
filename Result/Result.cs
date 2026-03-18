@@ -1,94 +1,152 @@
-﻿namespace Result
+namespace Result
 {
-    public readonly struct Result<L, R>
+    public sealed class Result<TSuccess, TFailure>
     {
-        private readonly R _right;
-        private readonly L _left;
-        private readonly bool _isRight;
-        private readonly bool _isLeft;
+        private readonly TSuccess _success;
+        private readonly TFailure _failure;
 
-        private Result(R right)
+        public bool IsSuccess { get; }
+        public bool IsFailure => !IsSuccess;
+
+        private Result(bool isSuccess, TSuccess success, TFailure failure)
         {
-            this._isRight = true;
-            this._isLeft = false;
-            this._right = right;
-            this._left = default;
-        }
-        private Result(L left)
-        {
-            this._isLeft = true;
-            this._isRight = false;
-            this._left = left;
-            this._right = default;
+            this.IsSuccess = isSuccess;
+            this._success = success;
+            this._failure = failure;
         }
 
-        public static implicit operator Result<L, R>(R value) =>
-            new Result<L, R>(value);
+        public static implicit operator Result<TSuccess, TFailure>(TSuccess value) =>
+            Success(value);
 
-        public static implicit operator Result<L, R>(L value) =>
-            new Result<L, R>(value);
+        public static implicit operator Result<TSuccess, TFailure>(TFailure value) =>
+            Failure(value);
 
-        public static Result<L, R> From(R value) => new Result<L, R>(value);
+        public static Result<TSuccess, TFailure> Success(TSuccess value) =>
+            new Result<TSuccess, TFailure>(true, value, default!);
 
-        public Result<L, R2> Map<R2>(Func<R, R2> map) =>
-            this._isRight
-                ? new Result<L, R2>(map(_right))
-                : new Result<L, R2>(_left);
+        public static Result<TSuccess, TFailure> Failure(TFailure value) =>
+            new Result<TSuccess, TFailure>(false, default!, value);
 
-        public Result<L, R2> Bind<R2>(Func<R, Result<L, R2>> f) =>
-            this._isRight
-                ? f(_right)
-                : new Result<L, R2>(_left);
-       
-        public async Task<Result<L, R2>> BindAsync<R2>(Func<R, Task<Result<L, R2>>> bind) =>
-            this._isRight
-                ? await bind(this._right).ConfigureAwait(false)
-                : new Result<L, R2>(_left);
+        public static Result<TSuccess, TFailure> From(TSuccess value) => Success(value);
 
-        public T Fold<T>(Func<L, T> leftFunc, Func<R, T> rightFunc) =>
-           this._isRight
-               ? rightFunc(_right)
-               : leftFunc(_left);
+        public Result<TNextSuccess, TFailure> Map<TNextSuccess>(Func<TSuccess, TNextSuccess> map)
+        {
+            ArgumentNullException.ThrowIfNull(map);
 
+            return this.IsSuccess
+                ? Result<TNextSuccess, TFailure>.Success(map(this._success))
+                : Result<TNextSuccess, TFailure>.Failure(this._failure);
+        }
+
+        public Result<TNextSuccess, TFailure> Bind<TNextSuccess>(Func<TSuccess, Result<TNextSuccess, TFailure>> bind)
+        {
+            ArgumentNullException.ThrowIfNull(bind);
+
+            return this.IsSuccess
+                ? bind(this._success)
+                : Result<TNextSuccess, TFailure>.Failure(this._failure);
+        }
+
+        public async Task<Result<TNextSuccess, TFailure>> BindAsync<TNextSuccess>(
+            Func<TSuccess, Task<Result<TNextSuccess, TFailure>>> bind)
+        {
+            ArgumentNullException.ThrowIfNull(bind);
+
+            return this.IsSuccess
+                ? await bind(this._success).ConfigureAwait(false)
+                : Result<TNextSuccess, TFailure>.Failure(this._failure);
+        }
+
+        public TResult Fold<TResult>(Func<TFailure, TResult> onFailure, Func<TSuccess, TResult> onSuccess)
+        {
+            ArgumentNullException.ThrowIfNull(onFailure);
+            ArgumentNullException.ThrowIfNull(onSuccess);
+
+            return this.IsSuccess
+                ? onSuccess(this._success)
+                : onFailure(this._failure);
+        }
     }
-
 
     public static class ResultExtension
     {
-        public static Result<L, V> SelectMany<U, V, L, R>(this Result<L, R> first, Func<R, Result<L, U>> second, Func<R, U, V> project)
+        public static Result<TProjectedSuccess, TFailure> SelectMany<TIntermediateSuccess, TProjectedSuccess, TSuccess, TFailure>(
+            this Result<TSuccess, TFailure> first,
+            Func<TSuccess, Result<TIntermediateSuccess, TFailure>> second,
+            Func<TSuccess, TIntermediateSuccess, TProjectedSuccess> project)
         {
+            ArgumentNullException.ThrowIfNull(second);
+            ArgumentNullException.ThrowIfNull(project);
+
             return first.Bind(a => second(a).Map(b => project(a, b)));
         }
-        public static Result<L, U> Select<U, L, R>(this Result<L, R> first, Func<R, U> map) => first.Map(map);
 
+        public static Result<TProjectedSuccess, TFailure> Select<TProjectedSuccess, TSuccess, TFailure>(
+            this Result<TSuccess, TFailure> first,
+            Func<TSuccess, TProjectedSuccess> map)
+        {
+            ArgumentNullException.ThrowIfNull(map);
+
+            return first.Map(map);
+        }
     }
 
     public static class TaskExtension
     {
-        public static Task<Result<L, R>> ToAsync<L, R>(this Result<L, R> result)
+        public static Task<Result<TSuccess, TFailure>> ToAsync<TSuccess, TFailure>(this Result<TSuccess, TFailure> result)
         {
             return Task.FromResult(result);
         }
 
-        public static Task<Result<L, R>> ToAsync<L, R>(this R value)
+        public static Task<Result<TSuccess, TFailure>> ToAsync<TSuccess, TFailure>(this TSuccess value)
         {
-            return Task.FromResult(Result<L, R>.From(value));
+            return Task.FromResult(Result<TSuccess, TFailure>.From(value));
         }
 
-        public static async Task<Result<L, U>> Select<U, L, R>(this Task<Result<L, R>> first, Func<R, U> map) => (await first).Map(map);
-        public static async Task<Result<L, V>> SelectMany<U, V, L, R>(this Task<Result<L, R>> first, Func<R, Task<Result<L, U>>> second, Func<R, U, V> project)
+        public static async Task<Result<TProjectedSuccess, TFailure>> Select<TProjectedSuccess, TSuccess, TFailure>(
+            this Task<Result<TSuccess, TFailure>> first,
+            Func<TSuccess, TProjectedSuccess> map)
         {
-            return await (await first).BindAsync(async a => (await second(a)).Map(b => project(a, b)));
+            return (await first.ConfigureAwait(false)).Map(map);
         }
 
-        public static async Task<Result<L, V>> SelectMany<U, V, L, R>(this Result<L, R> first, Func<R, Task<Result<L, U>>> second, Func<R, U, V> project)
+        public static async Task<Result<TProjectedSuccess, TFailure>> SelectMany<TIntermediateSuccess, TProjectedSuccess, TSuccess, TFailure>(
+            this Task<Result<TSuccess, TFailure>> first,
+            Func<TSuccess, Task<Result<TIntermediateSuccess, TFailure>>> second,
+            Func<TSuccess, TIntermediateSuccess, TProjectedSuccess> project)
         {
-            return await first.BindAsync(async a => (await second(a)).Map(b => project(a, b)));
+            ArgumentNullException.ThrowIfNull(second);
+            ArgumentNullException.ThrowIfNull(project);
+
+            return await (await first.ConfigureAwait(false))
+                .BindAsync(async a =>
+                    (await second(a).ConfigureAwait(false)).Map(b => project(a, b)))
+                .ConfigureAwait(false);
         }
 
-        public static async Task<Result<L, V>> SelectMany<U, V, L, R>(this Task<Result<L, R>> first, Func<R, Result<L, U>> second, Func<R, U, V> project)
+        public static async Task<Result<TProjectedSuccess, TFailure>> SelectMany<TIntermediateSuccess, TProjectedSuccess, TSuccess, TFailure>(
+            this Result<TSuccess, TFailure> first,
+            Func<TSuccess, Task<Result<TIntermediateSuccess, TFailure>>> second,
+            Func<TSuccess, TIntermediateSuccess, TProjectedSuccess> project)
         {
-            return (await first).Bind(a => second(a).Map(b => project(a, b)));
+            ArgumentNullException.ThrowIfNull(second);
+            ArgumentNullException.ThrowIfNull(project);
+
+            return await first
+                .BindAsync(async a =>
+                    (await second(a).ConfigureAwait(false)).Map(b => project(a, b)))
+                .ConfigureAwait(false);
+        }
+
+        public static async Task<Result<TProjectedSuccess, TFailure>> SelectMany<TIntermediateSuccess, TProjectedSuccess, TSuccess, TFailure>(
+            this Task<Result<TSuccess, TFailure>> first,
+            Func<TSuccess, Result<TIntermediateSuccess, TFailure>> second,
+            Func<TSuccess, TIntermediateSuccess, TProjectedSuccess> project)
+        {
+            ArgumentNullException.ThrowIfNull(second);
+            ArgumentNullException.ThrowIfNull(project);
+
+            return (await first.ConfigureAwait(false)).Bind(a => second(a).Map(b => project(a, b)));
         }
     }
 }
