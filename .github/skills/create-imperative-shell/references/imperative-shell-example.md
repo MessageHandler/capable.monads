@@ -1,6 +1,6 @@
 # Imperative Shell Example
 
-This note explains the imperative-shell portion of the example in `Capable.Monads.Tests/FunctionalCoreImperativeShellExample.cs`.
+This note explains the imperative-shell portion of the functional core and imperative shell pattern.
 
 ## Purpose
 
