@@ -37,11 +37,6 @@ namespace Result
                 Event[] history,
                 Authorized authorized)
             {
-                if (validatedCommand is null || history is null || authorized is null)
-                {
-                    return Result<Success, Problem>.Failure(new Problem());
-                }
-
                 // add pure business logic here
                 
                 var emitted = new Event[0];
@@ -63,9 +58,9 @@ namespace Result
         /// </summary>
         public class CommandHandler
         {
-            private readonly ValidationService? _validationService;
-            private readonly AuthorizationService? _authorizationService;
-            private readonly EventStore? _eventStore;
+            private readonly ValidationService _validationService;
+            private readonly AuthorizationService _authorizationService;
+            private readonly EventStore _eventStore;
 
             // Constructor injection: explicit dependencies wired at the boundary
             public CommandHandler(
@@ -85,11 +80,6 @@ namespace Result
             /// </summary>
             public async Task<Result<Success, Problem>> HandleAsync(Command command)
             {
-                if (command is null || this._validationService is null || this._authorizationService is null || this._eventStore is null)
-                {
-                    return Result<Success, Problem>.Failure(new Problem());
-                }
-
                 var decision = new Decision();
                 return await
                     (from validatedCommand in this._validationService.ValidateAsync(command)
