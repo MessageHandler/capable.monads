@@ -23,6 +23,53 @@ namespace Result
         }
 
         [Fact]
+        public void ImplicitConversion_CreatesSuccess_WhenTypesAreDifferent()
+        {
+            Result<int, string> result = 123;
+
+            var value = result.Fold(_ => -1, success => success);
+
+            value.Should().Be(123);
+            result.IsSuccess.Should().BeTrue();
+        }
+
+        [Fact]
+        public void ImplicitConversion_CreatesFailure_WhenTypesAreDifferent()
+        {
+            Result<int, string> result = "not valid";
+
+            var value = result.Fold(failure => failure, _ => "ok");
+
+            value.Should().Be("not valid");
+            result.IsFailure.Should().BeTrue();
+        }
+
+        [Fact]
+        public void SameTypeSuccessAndFailure_UsesExplicitFactories_ToAvoidAmbiguity()
+        {
+            var success = Result<string, string>.Success("ok");
+            var failure = Result<string, string>.Failure("error");
+
+            success.IsSuccess.Should().BeTrue();
+            failure.IsFailure.Should().BeTrue();
+            success.Fold(f => f, s => s).Should().Be("ok");
+            failure.Fold(f => f, s => s).Should().Be("error");
+        }
+
+        [Fact]
+        public void SameTypeSuccessAndFailure_AmbiguousImplicitAssignment_IsDocumented()
+        {
+            // This does not compile and is intentionally documented here:
+            // Result<string, string> ambiguous = "value";
+            // Use explicit factories when success and failure have the same type.
+            var success = Result<string, string>.Success("value");
+            var failure = Result<string, string>.Failure("value");
+
+            success.IsSuccess.Should().BeTrue();
+            failure.IsFailure.Should().BeTrue();
+        }
+
+        [Fact]
         public void Map_DoesNotInvokeMapper_OnFailure()
         {
             Result<int, string> failure = "bad input";
