@@ -117,7 +117,7 @@ Transforms the success value. If the result is a failure, the failure propagates
 
 **Throws:** `ArgumentNullException` when `map` is `null`.
 
-**When to use:** When the next step transforms a value and cannot itself fail — that is, when the function always produces a `TNextSuccess` and never needs to return a `Result`.
+**When to use:** When the next step transforms a value and cannot itself fail - that is, when the function always produces a `TNextSuccess` and never needs to return a `Result`.
 
 ---
 
@@ -334,5 +334,6 @@ return
 
 ## Related
 
-- `references/functional-core-imperative-shell-example.md` — annotated walkthrough using this API
-- `Capable.Monads.Tests/ResultSemanticsTests.cs` — monad law proofs and edge-case specs
+- `../skills/create-functional-core/references/functional-core-example.md` - functional core walkthrough using this API
+- `../skills/create-imperative-shell/references/imperative-shell-example.md` - imperative shell walkthrough using this API
+- `Capable.Monads.Tests/ResultSemanticsTests.cs` - monad law proofs and edge-case specs
