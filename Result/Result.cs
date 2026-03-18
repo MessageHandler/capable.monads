@@ -18,6 +18,9 @@ namespace Result
         public static Result<TSuccess, TFailure> Success(TSuccess value) =>
             new Result<TSuccess, TFailure>(true, value, default!);
 
+        public static Task<Result<TSuccess, TFailure>> SuccessAsync(TSuccess value) =>
+            Task.FromResult(Success(value));
+
         public static Result<TSuccess, TFailure> Failure(TFailure value) =>
             new Result<TSuccess, TFailure>(false, default!, value);
 
@@ -92,10 +95,6 @@ namespace Result
             return Task.FromResult(result);
         }
 
-        public static Task<Result<TSuccess, TFailure>> ToAsync<TSuccess, TFailure>(this TSuccess value)
-        {
-            return Task.FromResult(Result<TSuccess, TFailure>.From(value));
-        }
 
         public static async Task<Result<TProjectedSuccess, TFailure>> Select<TProjectedSuccess, TSuccess, TFailure>(
             this Task<Result<TSuccess, TFailure>> first,
