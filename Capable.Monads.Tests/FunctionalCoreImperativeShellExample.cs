@@ -1,6 +1,6 @@
 using FluentAssertions;
 
-namespace Result
+namespace Capable.Monads
 {
     /// <summary>
     /// Demonstrates Functional Core / Imperative Shell architecture.

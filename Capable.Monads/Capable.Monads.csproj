@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <IsPackable>true</IsPackable>
+    <PackageId>Capable.Monads</PackageId>
+    <Version>0.1.0</Version>
+    <Authors><!-- author name --></Authors>
+    <Description>A monad-based Result type for explicit, composable error handling in C#.</Description>
+    <RepositoryUrl><!-- https://github.com/owner/repo --></RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>monad;result;error-handling;functional;railway-oriented</PackageTags>
+  </PropertyGroup>
+
+</Project>

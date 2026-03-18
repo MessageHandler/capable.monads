@@ -1,4 +1,4 @@
-namespace Result
+namespace Capable.Monads
 {
     public sealed class Result<TSuccess, TFailure>
     {

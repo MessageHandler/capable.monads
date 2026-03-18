@@ -1,6 +1,6 @@
 using FluentAssertions;
 
-namespace Result
+namespace Capable.Monads
 {
     public class ResultSemanticsTests
     {
