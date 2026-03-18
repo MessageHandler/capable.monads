@@ -61,6 +61,7 @@ namespace Result
             private readonly ValidationService _validationService;
             private readonly AuthorizationService _authorizationService;
             private readonly EventStore _eventStore;
+            private readonly Decision _decision;
 
             // Constructor injection: explicit dependencies wired at the boundary
             public CommandHandler(
@@ -71,6 +72,7 @@ namespace Result
                 this._validationService = validationService;
                 this._authorizationService = authorizationService;
                 this._eventStore = eventStore;
+                this._decision = new Decision(); // Core logic is instantiated directly since it has no dependencies
             }
 
             /// <summary>
@@ -80,12 +82,12 @@ namespace Result
             /// </summary>
             public async Task<Result<Success, Problem>> HandleAsync(Command command)
             {
-                var decision = new Decision();
+                
                 return await
                     (from validatedCommand in this._validationService.ValidateAsync(command)
                     from authorized in this._authorizationService.AuthorizeAsync(new User())
                     from history in this._eventStore.LoadEventsAsync(validatedCommand)
-                    from success in decision.Decide(validatedCommand, history, authorized).ToAsync()
+                    from success in this._decision.Decide(validatedCommand, history, authorized).ToAsync()
                     from _ in this._eventStore.PersistEventsAsync(success.Emitted)
                     select success);
             }
