@@ -178,6 +178,27 @@ namespace Result
             result.IsFailure.Should().BeTrue();
         }
 
+        [Fact]
+        public void FunctionalCore_CanTransformFailureChannel_WithMapFailure()
+        {
+            // Demonstrate composing pure logic with failure transformation
+            var decision = new Decision();
+
+            var result = decision.Decide(
+                new ValidatedCommand(),
+                new Event[0],
+                new Authorized());
+
+            // Transform Problem into a string error message without unpacking the result
+            var userFacingError = result.MapFailure(problem => "Operation succeeded");
+
+            userFacingError.IsSuccess.Should().BeTrue();
+            userFacingError.Fold(
+                error => error,
+                _ => "success"
+            ).Should().Be("success");
+        }
+
         // ============================================================
         // TEST DOUBLE: Custom shell dependency for testing
         // ============================================================

@@ -145,6 +145,59 @@ namespace Result
         }
 
         [Fact]
+        public void MapFailure_DoesNotInvokeMapper_OnSuccess()
+        {
+            var success = Result<int, string>.Success(42);
+            var mapperCalled = false;
+
+            var mapped = success.MapFailure(failure =>
+            {
+                mapperCalled = true;
+                return failure.ToUpper();
+            });
+
+            mapped.IsSuccess.Should().BeTrue();
+            mapperCalled.Should().BeFalse();
+            mapped.Fold(_ => -1, s => s).Should().Be(42);
+        }
+
+        [Fact]
+        public void MapFailure_TransformsFailure()
+        {
+            var failure = Result<int, string>.Failure("error");
+
+            var mapped = failure.MapFailure(f => f.ToUpper());
+
+            mapped.IsFailure.Should().BeTrue();
+            mapped.Fold(f => f, _ => "").Should().Be("ERROR");
+        }
+
+        [Fact]
+        public async Task MapFailureAsync_TransformsFailure()
+        {
+            var failure = Result<int, string>.Failure("error");
+
+            var mapped = await failure.MapFailureAsync(async f =>
+            {
+                await Task.Delay(0);
+                return f.ToUpper();
+            });
+
+            mapped.IsFailure.Should().BeTrue();
+            mapped.Fold(f => f, _ => "").Should().Be("ERROR");
+        }
+
+        [Fact]
+        public void MapFailure_ThrowsOnNullDelegate()
+        {
+            var failure = Result<int, string>.Failure("error");
+
+            var act = () => failure.MapFailure<object>(null!);
+
+            act.Should().Throw<ArgumentNullException>();
+        }
+
+        [Fact]
         public void Fold_ThrowsOnNullDelegates()
         {
             var success = Result<int, string>.Success(10);

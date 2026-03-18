@@ -33,6 +33,15 @@ namespace Result
                 : Result<TNextSuccess, TFailure>.Failure(this._failure);
         }
 
+        public Result<TSuccess, TNextFailure> MapFailure<TNextFailure>(Func<TFailure, TNextFailure> map)
+        {
+            ArgumentNullException.ThrowIfNull(map);
+
+            return this.IsSuccess
+                ? Result<TSuccess, TNextFailure>.Success(this._success)
+                : Result<TSuccess, TNextFailure>.Failure(map(this._failure));
+        }
+
         public Result<TNextSuccess, TFailure> Bind<TNextSuccess>(Func<TSuccess, Result<TNextSuccess, TFailure>> bind)
         {
             ArgumentNullException.ThrowIfNull(bind);
@@ -50,6 +59,16 @@ namespace Result
             return this.IsSuccess
                 ? await bind(this._success).ConfigureAwait(false)
                 : Result<TNextSuccess, TFailure>.Failure(this._failure);
+        }
+
+        public async Task<Result<TSuccess, TNextFailure>> MapFailureAsync<TNextFailure>(
+            Func<TFailure, Task<TNextFailure>> map)
+        {
+            ArgumentNullException.ThrowIfNull(map);
+
+            return this.IsSuccess
+                ? Result<TSuccess, TNextFailure>.Success(this._success)
+                : Result<TSuccess, TNextFailure>.Failure(await map(this._failure).ConfigureAwait(false));
         }
 
         public TResult Fold<TResult>(Func<TFailure, TResult> onFailure, Func<TSuccess, TResult> onSuccess)
