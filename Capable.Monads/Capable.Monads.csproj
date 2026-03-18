@@ -9,9 +9,9 @@
     <IsPackable>true</IsPackable>
     <PackageId>Capable.Monads</PackageId>
     <Version>0.1.0</Version>
-    <Authors><!-- author name --></Authors>
+    <Authors>Yves Goeleven</Authors>
     <Description>A monad-based Result type for explicit, composable error handling in C#.</Description>
-    <RepositoryUrl><!-- https://github.com/owner/repo --></RepositoryUrl>
+    <RepositoryUrl>https://github.com/MessageHandler/capable.monads</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>monad;result;error-handling;functional;railway-oriented</PackageTags>
   </PropertyGroup>

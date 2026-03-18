@@ -1,0 +1,58 @@
+name: Publish NuGet Package
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - uses: smartsquaregmbh/delete-old-packages@v0.4.0
+        with:
+          version-pattern: "^\\d+\\.\\d+\\.\\d+-CI-.*$"
+          keep: 10
+          names: |
+           Capable.Monads
+      
+      - name: Get Latest Tag        
+        id: previoustag
+        uses: actions-ecosystem/action-get-latest-tag@v1
+
+      - name: 'Get next semver version'
+        id: semversMinor
+        uses: "actions-ecosystem/action-bump-semver@v1"
+        with:
+          current_version: ${{ steps.previoustag.outputs.tag }}
+          level: minor
+      
+      - name: Get version suffix
+        id: version
+        run: echo "::set-output name=suffix::$(date +'%Y%m%d-%H%M%S')"
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.x'
+
+      - name: Pack
+        run: dotnet pack Capable.Monads.slnx --configuration Release -p:PackageVersion=${{ steps.semversMinor.outputs.new_version }}-CI-${{ steps.version.outputs.suffix }} --output ./nupkg
+
+      - name: Push to GitHub Packages
+        run: |
+          for f in ./nupkg/*.nupkg
+          do
+            curl -vX PUT -u "$GITHUB_USER:$GITHUB_TOKEN" -F package=@$f $GITHUB_FEED
+          done
+        env:
+          GITHUB_FEED: https://nuget.pkg.github.com/messagehandler/
+          GITHUB_USER: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
