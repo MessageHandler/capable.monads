@@ -16,8 +16,8 @@ This repository's conventions:
 Reference examples in this repo:
 
 - `references/functional-core-imperative-shell-example.md`
+- `references/result-api.md`
 - `Capable.Monads.Tests/TestScenarios.cs`
-- `Capable.Monads/Result.cs`
 
 ## Outcome
 
