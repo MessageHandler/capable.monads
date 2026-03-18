@@ -18,33 +18,91 @@ namespace Result
     public class FunctionalCoreImperativeShellExample
     {
         // ============================================================
+        // DOMAIN TYPES: Business language
+        // ============================================================
+
+        /// <summary>
+        /// Strongly-typed domain errors. Speaks the business language.
+        /// </summary>
+        public abstract record DomainError
+        {
+            public record InsufficientInventory(int Requested, int Available) : DomainError;
+            public record UnauthorizedAction(string Reason) : DomainError;
+            public record BusinessRuleViolation(string Rule) : DomainError;
+        }
+
+        /// <summary>
+        /// Domain events: The output of core logic.
+        /// </summary>
+        public abstract record DomainEvent
+        {
+            public record OrderPlaced(string OrderId, int Quantity) : DomainEvent;
+            public record InventoryReserved(int Quantity) : DomainEvent;
+        }
+
+        /// <summary>
+        /// Encapsulates all domain context in one place.
+        /// Safer than scattering parameters, clearer intent.
+        /// </summary>
+        public class CommandContext
+        {
+            public ValidatedCommand Command { get; }
+            public DomainEvent[] History { get; }
+            public Authorized User { get; }
+
+            public CommandContext(ValidatedCommand command, DomainEvent[] history, Authorized user)
+            {
+                Command = command;
+                History = history;
+                User = user;
+            }
+        }
+
+        // ============================================================
         // FUNCTIONAL CORE: Pure business logic
         // ============================================================
 
         /// <summary>
-        /// Domain object: Encapsulates a pure decision.
-        /// Takes all required inputs as method parameters.
-        /// Decide() is a pure function with no side effects.
+        /// Domain decision maker. Encapsulates pure business rules.
+        /// Core invariants:
+        /// - An order must have a valid quantity
+        /// - Only authorized users can place orders
+        /// - All outcomes are domain events
+        /// - All failures are domain errors
         /// </summary>
-        public class Decision
+        public class OrderDecision
         {
             /// <summary>
-            /// Pure execution: No I/O, no side effects.
-            /// Returns a Result representing the outcome of the decision.
+            /// Execute: Pure function. No I/O, no side effects.
+            /// Returns domain events on success, domain errors on failure.
             /// </summary>
-            public Result<Success, Problem> Decide(
-                ValidatedCommand validatedCommand,
-                Event[] history,
-                Authorized authorized)
+            public Result<DomainEvent[], DomainError> Execute(CommandContext context)
             {
-                // add pure business logic here
-                
-                var emitted = new Event[0];
+                return from _ in ValidateBusinessRules(context)
+                       from events in ComputeStateChanges(context)
+                       select events;
+            }
 
-                return Result<Success, Problem>.Success(new Success
+            private Result<Unit, DomainError> ValidateBusinessRules(CommandContext context)
+            {
+                // Domain validation: part of the core, not deferred to shell
+                if (context.Command.Quantity <= 0)
+                    return Result<Unit, DomainError>.Failure(
+                        new DomainError.BusinessRuleViolation("Orders must have positive quantity"));
+
+                return Result<Unit, DomainError>.Success(new Unit());
+            }
+
+            private Result<DomainEvent[], DomainError> ComputeStateChanges(CommandContext context)
+            {
+                // Business logic: what events should be emitted?
+                var events = new DomainEvent[]
                 {
-                    Emitted = emitted
-                });
+                    new DomainEvent.OrderPlaced(context.Command.OrderId, context.Command.Quantity),
+                    new DomainEvent.InventoryReserved(context.Command.Quantity)
+                };
+
+                return Result<DomainEvent[], DomainError>.Success(events);
             }
         }
 
@@ -55,13 +113,14 @@ namespace Result
         /// <summary>
         /// Shell: Manages the imperative boundary.
         /// Responsible for validation, authorization, loading, persisting.
+        /// Delegates domain decisions to the core.
         /// </summary>
         public class CommandHandler
         {
             private readonly ValidationService _validationService;
             private readonly AuthorizationService _authorizationService;
             private readonly EventStore _eventStore;
-            private readonly Decision _decision;
+            private readonly OrderDecision _decision;
 
             // Constructor injection: explicit dependencies wired at the boundary
             public CommandHandler(
@@ -72,24 +131,23 @@ namespace Result
                 this._validationService = validationService;
                 this._authorizationService = authorizationService;
                 this._eventStore = eventStore;
-                this._decision = new Decision(); // Core logic is instantiated directly since it has no dependencies
+                this._decision = new OrderDecision(); // Core logic is instantiated directly since it has no dependencies
             }
 
             /// <summary>
             /// Shell entry point: Handles the command from outside.
-            /// Orchestrates I/O using LINQ query syntax, then delegates to the pure core.
+            /// Orchestrates I/O, then delegates to the pure core.
             /// Failures short-circuit automatically; no explicit error handling needed.
             /// </summary>
-            public async Task<Result<Success, Problem>> HandleAsync(Command command)
+            public async Task<Result<DomainEvent[], DomainError>> HandleAsync(Command command)
             {
-                
                 return await
                     (from validatedCommand in this._validationService.ValidateAsync(command)
                     from authorized in this._authorizationService.AuthorizeAsync(new User())
                     from history in this._eventStore.LoadEventsAsync(validatedCommand)
-                    from success in this._decision.Decide(validatedCommand, history, authorized).ToAsync()
-                    from _ in this._eventStore.PersistEventsAsync(success.Emitted)
-                    select success);
+                    from events in this._decision.Execute(new CommandContext(validatedCommand, history, authorized)).ToAsync()
+                    from _ in this._eventStore.PersistEventsAsync(events)
+                    select events);
             }
         }
 
@@ -99,56 +157,77 @@ namespace Result
 
         public class ValidationService
         {
-            public virtual async Task<Result<ValidatedCommand, Problem>> ValidateAsync(Command command)
+            public virtual async Task<Result<ValidatedCommand, DomainError>> ValidateAsync(Command command)
             {
                 // Could be I/O, external API, database query, etc.
-                return await Task.FromResult(Result<ValidatedCommand, Problem>.Success(new ValidatedCommand()));
+                return await Task.FromResult(Result<ValidatedCommand, DomainError>.Success(new ValidatedCommand()));
             }
         }
 
         public class AuthorizationService
         {
-            public async Task<Result<Authorized, Problem>> AuthorizeAsync(User user)
+            public async Task<Result<Authorized, DomainError>> AuthorizeAsync(User user)
             {
                 // Could be I/O, external API, database query, etc.
-                return await Task.FromResult(Result<Authorized, Problem>.Success(new Authorized()));
+                return await Task.FromResult(Result<Authorized, DomainError>.Success(new Authorized()));
             }
         }
 
         public class EventStore
         {
-            public async Task<Result<Event[], Problem>> LoadEventsAsync(ValidatedCommand command)
+            public async Task<Result<DomainEvent[], DomainError>> LoadEventsAsync(ValidatedCommand command)
             {
                 // I/O: database query
-                return await Task.FromResult(Result<Event[], Problem>.Success(new Event[0]));
+                return await Task.FromResult(Result<DomainEvent[], DomainError>.Success(new DomainEvent[0]));
             }
 
-            public async Task<Result<Unit, Problem>> PersistEventsAsync(Event[] events)
+            public async Task<Result<Unit, DomainError>> PersistEventsAsync(DomainEvent[] events)
             {
                 // I/O: database write
-                return await Task.FromResult(Result<Unit, Problem>.Success(new Unit()));
+                return await Task.FromResult(Result<Unit, DomainError>.Success(new Unit()));
             }
         }
 
         public readonly struct Unit { }
 
         // ============================================================
-        // TESTS: Show the separation
+        // TESTS: Show the separation and domain-driven approach
         // ============================================================
+
+        [Fact]
+        public void FunctionalCore_Validates_BusinessRules()
+        {
+            // Domain validation happens in the core, not the shell
+            var decision = new OrderDecision();
+            var invalidContext = new CommandContext(
+                new ValidatedCommand { Quantity = 0 },
+                new DomainEvent[0],
+                new Authorized());
+
+            var result = decision.Execute(invalidContext);
+
+            result.IsFailure.Should().BeTrue();
+            result.Fold(
+                error => error is DomainError.BusinessRuleViolation,
+                _ => false).Should().BeTrue();
+        }
 
         [Fact]
         public void FunctionalCore_IsPure_AndFullyTestable()
         {
             // No I/O, no mocking, no async—just pure logic
-            var decision = new Decision();
-
-            var result = decision.Decide(
-                new ValidatedCommand(),
-                new Event[0],
+            var decision = new OrderDecision();
+            var context = new CommandContext(
+                new ValidatedCommand { OrderId = "123", Quantity = 5 },
+                new DomainEvent[0],
                 new Authorized());
 
+            var result = decision.Execute(context);
+
             result.IsSuccess.Should().BeTrue();
-            result.Fold(_ => false, s => s is Success).Should().BeTrue();
+            result.Fold(
+                _ => false,
+                events => events.OfType<DomainEvent.OrderPlaced>().Any()).Should().BeTrue();
         }
 
         [Fact]
@@ -181,24 +260,20 @@ namespace Result
         }
 
         [Fact]
-        public void FunctionalCore_CanTransformFailureChannel_WithMapFailure()
+        public void FunctionalCore_ReturnsStronglyTypedDomainErrors()
         {
-            // Demonstrate composing pure logic with failure transformation
-            var decision = new Decision();
-
-            var result = decision.Decide(
-                new ValidatedCommand(),
-                new Event[0],
+            // Strongly-typed errors enable meaningful handling
+            var decision = new OrderDecision();
+            var invalidContext = new CommandContext(
+                new ValidatedCommand { Quantity = -5 },
+                new DomainEvent[0],
                 new Authorized());
 
-            // Transform Problem into a string error message without unpacking the result
-            var userFacingError = result.MapFailure(problem => "Operation succeeded");
+            var result = decision.Execute(invalidContext);
 
-            userFacingError.IsSuccess.Should().BeTrue();
-            userFacingError.Fold(
-                error => error,
-                _ => "success"
-            ).Should().Be("success");
+            result.Fold(
+                error => error is DomainError.BusinessRuleViolation bv && bv.Rule.Contains("positive"),
+                _ => false).Should().BeTrue();
         }
 
         // ============================================================
@@ -207,10 +282,27 @@ namespace Result
 
         private class FailingValidationService : ValidationService
         {
-            public override async Task<Result<ValidatedCommand, Problem>> ValidateAsync(Command command)
+            public override async Task<Result<ValidatedCommand, DomainError>> ValidateAsync(Command command)
             {
-                return await Task.FromResult(Result<ValidatedCommand, Problem>.Failure(new Problem()));
+                return await Task.FromResult(Result<ValidatedCommand, DomainError>.Failure(
+                    new DomainError.BusinessRuleViolation("Validation failed")));
             }
         }
+
+        // ============================================================
+        // HELPER TYPES: Supporting test stubs
+        // ============================================================
+
+        public class ValidatedCommand
+        {
+            public string OrderId { get; set; } = "order-001";
+            public int Quantity { get; set; } = 1;
+        }
+
+        public class Authorized { }
+        public class User { }
+        public abstract class Command { }
+        public class PlaceOrder : Command { }
+        public class Problem { }
     }
 }
