@@ -15,12 +15,6 @@ namespace Result
             this._failure = failure;
         }
 
-        public static implicit operator Result<TSuccess, TFailure>(TSuccess value) =>
-            Success(value);
-
-        public static implicit operator Result<TSuccess, TFailure>(TFailure value) =>
-            Failure(value);
-
         public static Result<TSuccess, TFailure> Success(TSuccess value) =>
             new Result<TSuccess, TFailure>(true, value, default!);
 

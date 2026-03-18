@@ -90,11 +90,11 @@ namespace Result
                     return Result<Success, Problem>.Failure(new Problem());
                 }
 
+                var decision = new Decision();
                 return await
                     (from validatedCommand in this._validationService.ValidateAsync(command)
                     from authorized in this._authorizationService.AuthorizeAsync(new User())
                     from history in this._eventStore.LoadEventsAsync(validatedCommand)
-                    let decision = new Decision()
                     from success in decision.Decide(validatedCommand, history, authorized).ToAsync()
                     from _ in this._eventStore.PersistEventsAsync(success.Emitted)
                     select success);

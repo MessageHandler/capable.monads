@@ -7,7 +7,7 @@ namespace Result
         [Fact]
         public void Success_HasExpectedFlags()
         {
-            Result<int, string> result = 42;
+            var result = Result<int, string>.Success(42);
 
             result.IsSuccess.Should().BeTrue();
             result.IsFailure.Should().BeFalse();
@@ -16,16 +16,16 @@ namespace Result
         [Fact]
         public void Failure_HasExpectedFlags()
         {
-            Result<int, string> result = "boom";
+            var result = Result<int, string>.Failure("boom");
 
             result.IsSuccess.Should().BeFalse();
             result.IsFailure.Should().BeTrue();
         }
 
         [Fact]
-        public void ImplicitConversion_CreatesSuccess_WhenTypesAreDifferent()
+        public void Success_StoresValue()
         {
-            Result<int, string> result = 123;
+            var result = Result<int, string>.Success(123);
 
             var value = result.Fold(_ => -1, success => success);
 
@@ -34,9 +34,9 @@ namespace Result
         }
 
         [Fact]
-        public void ImplicitConversion_CreatesFailure_WhenTypesAreDifferent()
+        public void Failure_StoresValue()
         {
-            Result<int, string> result = "not valid";
+            var result = Result<int, string>.Failure("not valid");
 
             var value = result.Fold(failure => failure, _ => "ok");
 
@@ -57,11 +57,8 @@ namespace Result
         }
 
         [Fact]
-        public void SameTypeSuccessAndFailure_AmbiguousImplicitAssignment_IsDocumented()
+        public void SameTypeSuccessAndFailure_RequiresExplicitFactories()
         {
-            // This does not compile and is intentionally documented here:
-            // Result<string, string> ambiguous = "value";
-            // Use explicit factories when success and failure have the same type.
             var success = Result<string, string>.Success("value");
             var failure = Result<string, string>.Failure("value");
 
@@ -72,7 +69,7 @@ namespace Result
         [Fact]
         public void Map_DoesNotInvokeMapper_OnFailure()
         {
-            Result<int, string> failure = "bad input";
+            var failure = Result<int, string>.Failure("bad input");
             var mapperCalled = false;
 
             var mapped = failure.Map(value =>
@@ -88,7 +85,7 @@ namespace Result
         [Fact]
         public void Bind_DoesNotInvokeBinder_OnFailure()
         {
-            Result<int, string> failure = "bad input";
+            var failure = Result<int, string>.Failure("bad input");
             var binderCalled = false;
 
             var bound = failure.Bind(value =>
@@ -104,7 +101,7 @@ namespace Result
         [Fact]
         public async Task BindAsync_DoesNotInvokeBinder_OnFailure()
         {
-            Result<int, string> failure = "bad input";
+            var failure = Result<int, string>.Failure("bad input");
             var binderCalled = false;
 
             var bound = await failure.BindAsync(value =>
@@ -120,7 +117,7 @@ namespace Result
         [Fact]
         public void Map_ThrowsOnNullDelegate()
         {
-            Result<int, string> success = 10;
+            var success = Result<int, string>.Success(10);
 
             var act = () => success.Map<int>(null!);
 
@@ -130,7 +127,7 @@ namespace Result
         [Fact]
         public void Bind_ThrowsOnNullDelegate()
         {
-            Result<int, string> success = 10;
+            var success = Result<int, string>.Success(10);
 
             var act = () => success.Bind<int>(null!);
 
@@ -140,7 +137,7 @@ namespace Result
         [Fact]
         public async Task BindAsync_ThrowsOnNullDelegate()
         {
-            Result<int, string> success = 10;
+            var success = Result<int, string>.Success(10);
 
             var act = async () => await success.BindAsync<int>(null!);
 
@@ -150,7 +147,7 @@ namespace Result
         [Fact]
         public void Fold_ThrowsOnNullDelegates()
         {
-            Result<int, string> success = 10;
+            var success = Result<int, string>.Success(10);
 
             var failureHandlerAct = () => success.Fold<int>(null!, _ => 0);
             var successHandlerAct = () => success.Fold<int>(_ => 0, null!);

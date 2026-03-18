@@ -28,11 +28,11 @@ namespace Result
         public async Task CanSucceed()
         {
             var result = await HandleCommand(new PlaceOrder(),
-                request => new ValidatedCommand(),
-                command => new Authorized(),
-                async command => new Event[0],
+                request => Result<ValidatedCommand, Problem>.Success(new ValidatedCommand()),
+                command => Result<Authorized, Problem>.Success(new Authorized()),
+                async command => Result<Event[], Problem>.Success(new Event[0]),
                 (events, command, authorized) => new Booking(),
-                async (booking) => new Event[0]);
+                async (booking) => Result<Event[], Problem>.Success(new Event[0]));
 
             result.Fold(
                 p => p.Should().BeNull(),
@@ -44,11 +44,11 @@ namespace Result
         public async Task CanFailOnValidation()
         {
             var result = await HandleCommand(new PlaceOrder(),
-                request => new Problem(),
-                command => new Authorized(),
-                async command => new Event[0],
+                request => Result<ValidatedCommand, Problem>.Failure(new Problem()),
+                command => Result<Authorized, Problem>.Success(new Authorized()),
+                async command => Result<Event[], Problem>.Success(new Event[0]),
                 (events, command, authorized) => new Booking(),
-                async (booking) => new Event[0]);
+                async (booking) => Result<Event[], Problem>.Success(new Event[0]));
 
             result.Fold(
                p => p.Should().BeOfType<Problem>(),
@@ -60,11 +60,11 @@ namespace Result
         public async Task CanFailOnAuthorization()
         {
             var result = await HandleCommand(new PlaceOrder(),
-                request => new ValidatedCommand(),
-                command => new Problem(),
-                async command => new Event[0],
+                request => Result<ValidatedCommand, Problem>.Success(new ValidatedCommand()),
+                command => Result<Authorized, Problem>.Failure(new Problem()),
+                async command => Result<Event[], Problem>.Success(new Event[0]),
                 (events, command, authorized) => new Booking(),
-                async ( booking) => new Event[0]);
+                async (booking) => Result<Event[], Problem>.Success(new Event[0]));
 
             result.Fold(
                p => p.Should().BeOfType<Problem>(),
@@ -76,11 +76,11 @@ namespace Result
         public async Task CanFailOnLoading()
         {
             var result = await HandleCommand(new PlaceOrder(),
-                request => new ValidatedCommand(),
-                command => new Authorized(),
-                async command => new Problem(),
+                request => Result<ValidatedCommand, Problem>.Success(new ValidatedCommand()),
+                command => Result<Authorized, Problem>.Success(new Authorized()),
+                async command => Result<Event[], Problem>.Failure(new Problem()),
                 (events, command, authorized) => new Booking(),
-                async (booking) => new Event[0]);
+                async (booking) => Result<Event[], Problem>.Success(new Event[0]));
 
             result.Fold(
                p => p.Should().BeOfType<Problem>(),
@@ -92,11 +92,11 @@ namespace Result
         public async Task CanFailOnPersistance()
         {
             var result = await HandleCommand(new PlaceOrder(),
-                request => new ValidatedCommand(),
-                command => new Authorized(),
-                async command => new Event[0],
+                request => Result<ValidatedCommand, Problem>.Success(new ValidatedCommand()),
+                command => Result<Authorized, Problem>.Success(new Authorized()),
+                async command => Result<Event[], Problem>.Success(new Event[0]),
                 (events, command, authorized) => new Booking(),
-                async (booking) => new Problem());
+                async (booking) => Result<Event[], Problem>.Failure(new Problem()));
 
             result.Fold(
                p => p.Should().BeOfType<Problem>(),
