@@ -1,0 +1,51 @@
+{
+  "name": "@messagehandler/capable.monads",
+  "version": "0.1.0",
+  "description": "Result monad for functional core / imperative shell composition.",
+  "type": "module",
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/src/index.js"
+    }
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
+    "access": "restricted"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/messagehandler/monads.git"
+  },
+  "bugs": {
+    "url": "https://github.com/messagehandler/monads/issues"
+  },
+  "homepage": "https://github.com/messagehandler/monads#readme",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && mocha \"dist/test/**/*.spec.js\"",
+    "prepack": "npm run test",
+    "publish:github": "npm publish --registry https://npm.pkg.github.com"
+  },
+  "keywords": [
+    "monad",
+    "result",
+    "railway-oriented-programming",
+    "functional-core",
+    "imperative-shell"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/chai": "^5.2.1",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.13.14",
+    "chai": "^5.2.0",
+    "mocha": "^11.1.0",
+    "typescript": "^5.8.2"
+  }
+}

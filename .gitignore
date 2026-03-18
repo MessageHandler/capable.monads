@@ -16,3 +16,7 @@ packages*
 !packages.config
 build/build
 
+# TypeScript package artifacts
+src/typescript/**/dist/
+src/typescript/**/node_modules/
+

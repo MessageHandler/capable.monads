@@ -1,0 +1,8 @@
+{
+  "name": "monads-repo",
+  "private": true,
+  "scripts": {
+    "build": "npm --prefix src/typescript/capable-monads run build",
+    "test": "npm --prefix src/typescript/capable-monads run test"
+  }
+}

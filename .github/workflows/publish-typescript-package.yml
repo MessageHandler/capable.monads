@@ -1,0 +1,43 @@
+name: Publish TypeScript Package
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "src/typescript/capable-monads/**"
+      - ".github/workflows/publish-typescript-package.yml"
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: src/typescript/capable-monads
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          registry-url: "https://npm.pkg.github.com"
+          scope: "@messagehandler"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build and test
+        run: npm test
+
+      - name: Publish to GitHub Packages
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

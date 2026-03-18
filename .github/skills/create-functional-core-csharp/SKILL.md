@@ -1,5 +1,5 @@
 ---
-name: create-functional-core
+name: create-functional-core-csharp
 description: "Use when creating, refactoring, or reviewing a pure functional core. Trigger phrases: functional core, pure domain logic, Capable.Monads, Result pipeline, domain events, domain errors, Bind, Map, deterministic rules."
 ---
 

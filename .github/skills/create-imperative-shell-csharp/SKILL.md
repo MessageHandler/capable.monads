@@ -1,5 +1,5 @@
 ---
-name: create-imperative-shell
+name: create-imperative-shell-csharp
 description: "Use when creating, refactoring, or reviewing an imperative shell around a pure functional core. Trigger phrases: imperative shell, command handler, application service, orchestration, Capable.Monads, Result pipeline, short-circuiting, ToAsync, integration boundaries."
 ---
 
