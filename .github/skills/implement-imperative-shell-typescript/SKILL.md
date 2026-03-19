@@ -18,8 +18,8 @@ description: "Use when creating, refactoring, or reviewing a TypeScript imperati
 
 References for this repo:
 
-- [`../references/typescript-imperative-shell-example.md`](../references/typescript-imperative-shell-example.md)
-- [`../references/typescript-result-api.md`](../references/typescript-result-api.md)
+- [`../../references/typescript-imperative-shell-example.md`](../../references/typescript-imperative-shell-example.md)
+- [`../../references/typescript-result-api.md`](../../references/typescript-result-api.md)
 
 ## Shell Shape in TypeScript
 

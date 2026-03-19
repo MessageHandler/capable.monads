@@ -18,8 +18,8 @@ description: "Use when creating, refactoring, or reviewing a pure functional cor
 
 References for this repo:
 
-- [`../references/typescript-functional-core-example.md`](../references/typescript-functional-core-example.md)
-- [`../references/typescript-result-api.md`](../references/typescript-result-api.md)
+- [`../../references/typescript-functional-core-example.md`](../../references/typescript-functional-core-example.md)
+- [`../../references/typescript-result-api.md`](../../references/typescript-result-api.md)
 
 ## Domain Type Modeling in TypeScript
 
