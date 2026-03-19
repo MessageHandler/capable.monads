@@ -3,6 +3,12 @@ name: implement-functional-core-typescript
 description: "Use when creating, refactoring, or reviewing a pure functional core in TypeScript with Capable.Monads Result pipelines, typed domain errors/events, bind/map composition, and deterministic rules. Trigger phrases: functional core typescript, pure domain logic ts, result pipeline ts, railroad programming ts, domain decisions ts."
 ---
 
+## Package Requirement
+
+> ⚠️ When implementing functional cores in the **messagehandler** repository, always install the **capable-monads** npm package in the project.
+>
+> For TypeScript: `npm install capable-monads@latest`
+
 > **Before proceeding, read and apply the generic skill first:**
 > [`../implement-functional-core/SKILL.md`](../implement-functional-core/SKILL.md)
 >

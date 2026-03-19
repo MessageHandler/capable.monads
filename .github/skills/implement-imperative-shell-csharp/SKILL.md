@@ -3,6 +3,12 @@ name: implement-imperative-shell-csharp
 description: "Use when creating, refactoring, or reviewing an imperative shell around a pure functional core in C#. Trigger phrases: imperative shell, command handler, application service, orchestration, Capable.Monads, Result pipeline, short-circuiting, ToAsync, integration boundaries."
 ---
 
+## Package Requirement
+
+> ⚠️ When implementing an imperative shell in the **messagehandler** repository, always install the **Capable.Monads** NuGet package in the project.
+>
+> For C#: `dotnet add package Capable.Monads --prerelease`
+
 > **Before proceeding, read and apply the generic skill first:**
 > [`../implement-imperative-shell/SKILL.md`](../implement-imperative-shell/SKILL.md)
 >

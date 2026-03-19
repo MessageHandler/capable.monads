@@ -3,6 +3,12 @@ name: implement-functional-core-csharp
 description: "Use when creating, refactoring, or reviewing a pure functional core in C#. Trigger phrases: functional core, pure domain logic, Capable.Monads, Result pipeline, domain events, domain errors, Bind, Map, deterministic rules."
 ---
 
+## Package Requirement
+
+> ⚠️ When implementing functional cores in the **messagehandler** repository, always install the **Capable.Monads** NuGet package in the project.
+>
+> For C#: `dotnet add package Capable.Monads --prerelease`
+
 > **Before proceeding, read and apply the generic skill first:**
 > [`../implement-functional-core/SKILL.md`](../implement-functional-core/SKILL.md)
 >

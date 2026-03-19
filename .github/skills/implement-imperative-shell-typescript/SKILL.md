@@ -3,6 +3,12 @@ name: implement-imperative-shell-typescript
 description: "Use when creating, refactoring, or reviewing a TypeScript imperative shell around a pure functional core with Capable.Monads Result pipelines, short-circuiting orchestration, async boundaries, and dependency-driven I/O. Trigger phrases: imperative shell typescript, command handler ts, application service ts, orchestration ts, result pipeline async ts."
 ---
 
+## Package Requirement
+
+> ⚠️ When implementing an imperative shell in the **messagehandler** repository, always install the **capable-monads** npm package in the project.
+>
+> For TypeScript: `npm install capable-monads@latest`
+
 > **Before proceeding, read and apply the generic skill first:**
 > [`../implement-imperative-shell/SKILL.md`](../implement-imperative-shell/SKILL.md)
 >
