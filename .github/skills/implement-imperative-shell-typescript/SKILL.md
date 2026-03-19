@@ -5,9 +5,9 @@ description: "Use when creating, refactoring, or reviewing a TypeScript imperati
 
 ## Package Requirement
 
-> ⚠️ When implementing an imperative shell in the **messagehandler** repository, always install the **capable-monads** npm package in the project.
+> ⚠️ When implementing an imperative shell in the **messagehandler** repository, always install the **@messagehandler/capable.monads** npm package in the project.
 >
-> For TypeScript: `npm install capable-monads@latest`
+> For TypeScript: `npm install @messagehandler/capable.monads@latest`
 
 > **Before proceeding, read and apply the generic skill first:**
 > [`../implement-imperative-shell/SKILL.md`](../implement-imperative-shell/SKILL.md)

@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - "src/typescript/capable-monads/**"
+      - "src/typescript/capable.monads/**"
       - ".github/workflows/publish-typescript-package.yml"
 
 permissions:
@@ -18,7 +18,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: src/typescript/capable-monads
+        working-directory: src/typescript/capable.monads
 
     steps:
       - name: Checkout

@@ -5,9 +5,9 @@ description: "Use when creating, refactoring, or reviewing a pure functional cor
 
 ## Package Requirement
 
-> ⚠️ When implementing functional cores in the **messagehandler** repository, always install the **capable-monads** npm package in the project.
+> ⚠️ When implementing functional cores in the **messagehandler** repository, always install the **@messagehandler/capable.monads** npm package in the project.
 >
-> For TypeScript: `npm install capable-monads@latest`
+> For TypeScript: `npm install @messagehandler/capable.monads@latest`
 
 > **Before proceeding, read and apply the generic skill first:**
 > [`../implement-functional-core/SKILL.md`](../implement-functional-core/SKILL.md)
