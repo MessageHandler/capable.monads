@@ -95,3 +95,4 @@ Keep the core synchronous. At the shell boundary, use `ToAsync()` to lift a sync
 - Avoid `Task` inside the core.
 - `sealed class` for decision objects; `abstract record` for error/event hierarchies.
 - Imperative shell lives in a separate class; see [`implement-imperative-shell-csharp`](../implement-imperative-shell-csharp/SKILL.md).
+- Reuse existing `.c.cs` contract types as decision input/output when they already model the same domain command/event. Do not create duplicate `*Input`/`*Output` records with identical fields.

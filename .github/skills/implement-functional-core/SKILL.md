@@ -16,6 +16,7 @@ Repository conventions (all languages):
 - `Result<TSuccess, TFailure>` generic order is success first, failure second.
 - The functional core returns domain results: domain events on success, strongly-typed domain errors on failure.
 - The core must not perform I/O or integration orchestration. For that boundary, see the imperative shell skill.
+- Reuse existing slice contract types in the core when they already represent the same domain command/event; do not introduce duplicate `*Input`/`*Output` aliases with identical structure.
 
 ## Outcome
 
@@ -112,6 +113,7 @@ Flag the design if any of these are true:
 - Exceptions are used for expected domain decisions.
 - Failure cases are weakly typed strings where a named domain error type would be clearer.
 - Specs for business logic require mocks or async setup.
+- The core defines duplicate input/output types that copy existing contract types instead of reusing them directly.
 
 ## Completion Checklist
 

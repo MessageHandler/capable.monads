@@ -5,9 +5,9 @@ description: "Use when creating, refactoring, or reviewing a pure functional cor
 
 ## Package Requirement
 
-> ⚠️ When implementing functional cores in the **messagehandler** repository, always install the **@messagehandler/capable.monads** npm package in the project.
+> ⚠️ When implementing functional cores in the **messagehandler** repository, always install the **capable-monads** npm package in the project.
 >
-> For TypeScript: `npm install @messagehandler/capable.monads@latest`
+> For TypeScript: `npm install capable-monads@latest`
 
 > **Before proceeding, read and apply the generic skill first:**
 > [`../implement-functional-core/SKILL.md`](../implement-functional-core/SKILL.md)
@@ -58,3 +58,4 @@ function decide(context: CommandContext): Result<DomainEvent[], DomainError> {
 - Prefer `type` aliases with discriminated unions over `interface` for error/event shapes.
 - Export decision functions, not classes, unless stateful configuration is needed.
 - No `Promise` inside the core; the shell handles async. See [`implement-imperative-shell-typescript`](../implement-imperative-shell-typescript/SKILL.md).
+- Reuse existing `.c.ts` contract types as decision input/output when they already model the same domain command/event. Do not introduce duplicate `*Input`/`*Output` aliases with identical structure.
