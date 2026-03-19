@@ -1,9 +1,9 @@
 ---
-name: create-imperative-shell-typescript
+name: implement-imperative-shell-typescript
 description: "Use when creating, refactoring, or reviewing a TypeScript imperative shell around a pure functional core with Capable.Monads Result pipelines, short-circuiting orchestration, async boundaries, and dependency-driven I/O. Trigger phrases: imperative shell typescript, command handler ts, application service ts, orchestration ts, result pipeline async ts."
 ---
 
-# Create Imperative Shell (TypeScript)
+# Implement Imperative Shell (TypeScript)
 
 Use this skill when orchestrating effectful boundaries in TypeScript while delegating business decisions to a pure core.
 

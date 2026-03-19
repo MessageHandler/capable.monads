@@ -1,9 +1,9 @@
 ---
-name: create-functional-core-csharp
+name: implement-functional-core-csharp
 description: "Use when creating, refactoring, or reviewing a pure functional core. Trigger phrases: functional core, pure domain logic, Capable.Monads, Result pipeline, domain events, domain errors, Bind, Map, deterministic rules."
 ---
 
-# Create Functional Core
+# Implement Functional Core
 
 Use this skill when the goal is to encode business decisions as pure, deterministic logic with explicit success and failure values.
 
@@ -11,7 +11,7 @@ This repository's conventions:
 
 - `Result<TSuccess, TFailure>` generic order is success first, failure second.
 - The functional core returns domain results, typically domain events on success and strongly-typed domain errors on failure.
-- The core should not perform I/O or integration orchestration. For that boundary behavior, see [Create Imperative Shell](../create-imperative-shell/SKILL.md).
+- The core should not perform I/O or integration orchestration. For that boundary behavior, see [Implement Imperative Shell](../implement-imperative-shell/SKILL.md).
 
 Reference examples in this repo:
 
@@ -180,7 +180,7 @@ Flag the design if any of these are true:
 
 ## Example Prompts
 
-- "Create a pure functional core for placing an order using Capable.Monads and explicit domain errors."
+- "Implement a pure functional core for placing an order using Capable.Monads and explicit domain errors."
 - "Refactor this business logic so rules return Result<DomainEvent[], DomainError> with no I/O dependencies."
 - "Review this domain decision code for functional purity and typed failure modeling."
 - "Add specs that prove identical input produces identical domain decisions."

@@ -1,9 +1,9 @@
 ---
-name: create-imperative-shell-csharp
+name: implement-imperative-shell-csharp
 description: "Use when creating, refactoring, or reviewing an imperative shell around a pure functional core. Trigger phrases: imperative shell, command handler, application service, orchestration, Capable.Monads, Result pipeline, short-circuiting, ToAsync, integration boundaries."
 ---
 
-# Create Imperative Shell
+# Implement Imperative Shell
 
 Use this skill when the goal is to orchestrate I/O and integration work while delegating business decisions to a pure functional core.
 
@@ -150,7 +150,7 @@ Flag the design if any of these are true:
 
 ## Example Prompts
 
-- "Create an imperative shell command handler that orchestrates validation, authorization, load, decide, and persist using Capable.Monads."
+- "Implement an imperative shell command handler that orchestrates validation, authorization, load, decide, and persist using Capable.Monads."
 - "Refactor this application service into a short-circuiting Result pipeline with clear boundary error translation."
 - "Review this handler and identify shell orchestration bugs or mixed-in business logic."
 - "Add tests proving persistence is not called when validation fails."

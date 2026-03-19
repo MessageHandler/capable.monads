@@ -1,9 +1,9 @@
 ---
-name: create-functional-core-typescript
+name: implement-functional-core-typescript
 description: "Use when creating, refactoring, or reviewing a pure functional core in TypeScript with Capable.Monads Result pipelines, typed domain errors/events, bind/map composition, and deterministic rules. Trigger phrases: functional core typescript, pure domain logic ts, result pipeline ts, railroad programming ts, domain decisions ts."
 ---
 
-# Create Functional Core (TypeScript)
+# Implement Functional Core (TypeScript)
 
 Use this skill when implementing business decisions as pure, deterministic TypeScript logic.
 

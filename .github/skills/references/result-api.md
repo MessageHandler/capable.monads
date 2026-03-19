@@ -333,5 +333,5 @@ return
 
 ## Related
 
-- `../create-functional-core/references/functional-core-example.md` - functional core walkthrough using this API
-- `../create-imperative-shell/references/imperative-shell-example.md` - imperative shell walkthrough using this API
+- `../implement-functional-core/references/functional-core-example.md` - functional core walkthrough using this API
+- `../implement-imperative-shell/references/imperative-shell-example.md` - imperative shell walkthrough using this API
