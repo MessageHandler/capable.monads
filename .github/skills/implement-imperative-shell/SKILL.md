@@ -17,6 +17,7 @@ Repository conventions (all languages):
 - The shell orchestrates validation, authorization, loading, persistence, and other effects.
 - The shell calls into a pure core for business decisions; it must not encode business rules directly.
 - For the pure core itself, see the functional core skill.
+- When consuming contracts/core from another layer, depend on that layer's package and do not import source files across layers with relative paths.
 
 ## Outcome
 

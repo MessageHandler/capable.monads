@@ -17,6 +17,7 @@ Repository conventions (all languages):
 - The functional core returns domain results: domain events on success, strongly-typed domain errors on failure.
 - The core must not perform I/O or integration orchestration. For that boundary, see the imperative shell skill.
 - Reuse existing slice contract types in the core when they already represent the same domain command/event; do not introduce duplicate `*Input`/`*Output` aliases with identical structure.
+- When contract types live in another layer/package, reference that layer through its package (for example `capabilityname.capability.contracts`) instead of importing another layer's source files via relative paths.
 
 ## Outcome
 

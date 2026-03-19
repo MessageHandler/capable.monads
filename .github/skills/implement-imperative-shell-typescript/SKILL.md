@@ -43,3 +43,4 @@ async function handle(command: Command): Promise<Result<DomainEvent[], DomainErr
 - Functions are preferred over classes for handlers unless stateful configuration is needed.
 - `mapFailure` is the idiomatic way to translate infrastructure errors into domain/application error shapes at boundaries.
 - For the pure core shape, see [`implement-functional-core-typescript`](../implement-functional-core-typescript/SKILL.md).
+- For cross-layer dependencies, import contracts/core from their package boundaries, not via relative imports into another layer's `src/**` files.
