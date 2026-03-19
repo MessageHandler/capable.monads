@@ -3,42 +3,21 @@ name: implement-functional-core-typescript
 description: "Use when creating, refactoring, or reviewing a pure functional core in TypeScript with Capable.Monads Result pipelines, typed domain errors/events, bind/map composition, and deterministic rules. Trigger phrases: functional core typescript, pure domain logic ts, result pipeline ts, railroad programming ts, domain decisions ts."
 ---
 
-# Implement Functional Core (TypeScript)
+> **Before proceeding, read and apply the generic skill first:**
+> [`../implement-functional-core/SKILL.md`](../implement-functional-core/SKILL.md)
+>
+> Then apply the TypeScript-specific additions below.
 
-Use this skill when implementing business decisions as pure, deterministic TypeScript logic.
+# Implement Functional Core — TypeScript Specifics
 
-Repository conventions for TypeScript:
+References for this repo:
 
-- `Result<TSuccess, TFailure>` generic order is success first, failure second.
-- Prefer discriminated unions for `DomainError` and `DomainEvent`.
-- Compose with `bind` and `map`; TypeScript has no LINQ query syntax.
-- Keep the functional core synchronous unless pure computation truly requires async.
+- [`../references/typescript-functional-core-example.md`](../references/typescript-functional-core-example.md)
+- [`../references/typescript-result-api.md`](../references/typescript-result-api.md)
 
-References in this repo:
+## Domain Type Modeling in TypeScript
 
-- `../references/typescript-functional-core-example.md`
-- `../references/typescript-result-api.md`
-
-## Outcome
-
-Produce a functional core with these properties:
-
-1. Pure domain decision logic with explicit inputs/outputs.
-2. Typed success and failure values with no exceptions for expected business outcomes.
-3. Deterministic behavior proven by tests.
-
-## Workflow
-
-### 1. Model domain language first
-
-Define explicit domain-facing types:
-
-- Command and validated command
-- Domain errors as discriminated unions
-- Domain events as discriminated unions
-- Context object when multiple values travel together
-
-Example discriminated union style:
+Use discriminated unions (not class hierarchies) for domain errors and events.
 
 ```ts
 type DomainError =
@@ -46,35 +25,30 @@ type DomainError =
   | { type: "BusinessRuleViolation"; rule: string };
 
 type DomainEvent = { type: "OrderPlaced"; orderId: string; quantity: number };
+
+interface CommandContext {
+  command: ValidatedCommand;
+  history: DomainEvent[];
+  user: Authorized;
+}
 ```
 
-### 2. Keep core pure
+## Composing Decisions in TypeScript
 
-Core must not perform:
+TypeScript has no LINQ query syntax. Use `bind` and `map` as method/function calls.
 
-- HTTP/database/file I/O
-- Logging as a decision dependency
-- Time/random/global-state access
+- Use `bind` when the next step can fail and returns `Result`.
+- Use `map` when the next step is a pure transformation.
 
-### 3. Compose decisions with `bind` / `map`
+```ts
+function decide(context: CommandContext): Result<DomainEvent[], DomainError> {
+  return validateBusinessRules(context)
+    .bind(() => computeStateChanges(context));
+}
+```
 
-Use `bind` when next step can fail and returns `Result`.
-Use `map` when next step is a pure transformation.
+## TypeScript Conventions
 
-### 4. Spec behavior directly
-
-Tests should verify:
-
-- same input gives same output
-- rule violations return typed errors
-- success returns expected domain events
-- no mocks required for core tests
-
-## Review Criteria
-
-Flag designs if:
-
-- Core touches infrastructure concerns
-- Expected business outcomes are exceptions
-- Failures are weakly typed strings where unions would be clearer
-- Core tests require async setup or test doubles
+- Prefer `type` aliases with discriminated unions over `interface` for error/event shapes.
+- Export decision functions, not classes, unless stateful configuration is needed.
+- No `Promise` inside the core; the shell handles async. See [`implement-imperative-shell-typescript`](../implement-imperative-shell-typescript/SKILL.md).
